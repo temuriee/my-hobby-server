@@ -1,5 +1,5 @@
 import express from "express";
-import { Hobby } from "../models/Hobby";
+import { Hobby } from "../models/Hobby.js";
 
 const hobbyRouter = express.Router();
 
@@ -52,10 +52,67 @@ hobbyRouter.get("/", async (req, res) => {
 });
 
 //!Get Single Hobby By Id
-hobbyRouter.get("/:id", async (req, res) => {});
+hobbyRouter.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const hobby = await Hobby.findById(id);
+
+    if (!hobby) {
+      return res.status(404).json({
+        status: "error",
+        error: "Hobby Not Found",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: hobby,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      error: err.message,
+    });
+  }
+});
 
 //! UPDATE A HOBBY BY ID
-hobbyRouter.put("/:id", async (req, res) => {});
+hobbyRouter.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, category, frequency, isActive } = req.body;
+
+    const hobby = await Hobby.findByIdAndUpdate(
+      id,
+      {
+        name,
+        description,
+        category,
+        frequency,
+        isActive,
+      },
+      {
+        new: true,
+      },
+    );
+
+    if (!hobby) {
+      return res.status(404).json({
+        status: "error",
+        error: "Hobby Not Found",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      data: hobby,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      error: err.message,
+    });
+  }
+});
 
 //! DELETE A HOBBY BY ID
 hobbyRouter.delete("/:id", async (req, res) => {
